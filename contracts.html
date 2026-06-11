@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản lý Hợp đồng & Ký số dịch vụ Y tế - KIENLT90 Portal</title>
+  <title>QUẢN LÝ HỢP ĐỒNG - KIENLT90 Portal</title>
   <!-- Google Fonts: Be Vietnam Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,26 +12,60 @@
   <link rel="stylesheet" href="style.css">
   <style>
     /* Custom Scoped Styles for Contracts Module */
+    .portal-container {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding: 1.5rem 2.5rem !important;
+      box-sizing: border-box;
+    }
     .contracts-layout {
       display: grid;
-      grid-template-columns: 280px 1fr 400px;
-      gap: 1.2rem;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
       margin-top: 1.8rem;
+      transition: grid-template-columns 0.3s ease;
     }
-    
-    @media (max-width: 1280px) {
-      .contracts-layout {
-        grid-template-columns: 240px 1fr;
-      }
-      #detail-panel {
-        grid-column: 1 / -1;
-      }
+    .contracts-layout.sidebar-collapsed {
+      grid-template-columns: 80px 1fr;
     }
-    
-    @media (max-width: 768px) {
-      .contracts-layout {
-        grid-template-columns: 1fr;
-      }
+    .sidebar-collapsed #sidebar-title,
+    .sidebar-collapsed #unit-search-wrapper,
+    .sidebar-collapsed .unit-name,
+    .sidebar-collapsed .unit-meta {
+      display: none !important;
+    }
+    .sidebar-collapsed .unit-card {
+      justify-content: center;
+      padding: 0.85rem 0.5rem;
+    }
+    .sidebar-collapsed .unit-avatar {
+      margin: 0;
+    }
+    .sidebar-collapsed #sidebar-card {
+      padding: 1.5rem 0.85rem !important;
+    }
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--color-text-primary);
+    }
+    body.light-theme .btn-icon:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .premium-table th {
+      white-space: nowrap;
     }
     
     /* Unit cards styles */
@@ -131,6 +165,24 @@
       background-color: rgba(255, 255, 255, 0.05);
       color: var(--color-text-secondary);
       border: 1px solid var(--color-surface-border);
+    }
+    
+    .status-danger {
+      background-color: var(--color-danger-bg);
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger-border);
+    }
+    
+    .view-container {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .view-container.hidden {
+      display: none !important;
+      opacity: 0;
+      transform: translateY(10px);
     }
     
     .contract-row {
@@ -357,9 +409,10 @@
           <path d="M 100 90 A 22 22 0 1 0 56 90 A 22 22 0 0 0 100 90 L 100 120 C 100 135, 88 145, 70 145" fill="none" stroke="url(#logo-grad-mini)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M 154 102.5 A 22 30 0 1 1 110 102.5 A 22 30 0 1 1 154 102.5" fill="none" stroke="var(--color-text-primary)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <h2 style="font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem;">Quản lý Hợp đồng & Ký số</h2>
+        <h2 style="font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem;">QUẢN LÝ HỢP ĐỒNG</h2>
       </div>
       <div class="user-profile">
+        <button class="btn-secondary" onclick="resetDatabase()" style="margin-left: 0; margin-right: 1rem;">🔄 Reset Dữ liệu</button>
         <button class="btn-secondary" onclick="window.close()" style="margin-left: 0; margin-right: 1rem;">🏠 Quay lại Portal</button>
         <!-- Theme Toggle Button -->
         <button id="theme-toggle-btn" class="btn-theme-toggle" onclick="toggleTheme()" title="Đổi giao diện">
@@ -368,153 +421,219 @@
       </div>
     </header>
 
-    <!-- Statistics Overview Panel -->
-    <div class="stats-container glass-card" style="margin-top: 1.2rem; padding: 1.2rem 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; border: 1px solid var(--color-surface-border); border-radius: 16px; background: rgba(255, 255, 255, 0.01);">
-      <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem;">
-        <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Tổng số Hợp đồng</span>
-        <span id="stat-total-cnt" style="font-size: 1.6rem; font-weight: 800; color: var(--color-text-primary);">0</span>
-        <span style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600;">100% Hoạt động</span>
-      </div>
-      <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
-        <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Tổng Giá trị Dự án</span>
-        <span id="stat-total-val" style="font-size: 1.6rem; font-weight: 800; color: var(--color-accent);">0 tỷ VND</span>
-        <span style="font-size: 0.75rem; color: var(--color-text-muted);">Hệ sinh thái Y tế số VNPT</span>
-      </div>
-      <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
-        <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Hợp đồng đã Ký số</span>
-        <span id="stat-signed-cnt" style="font-size: 1.6rem; font-weight: 800; color: #22c55e;">0</span>
-        <span id="stat-signed-val" style="font-size: 0.75rem; color: #22c55e; font-weight: 600;">0 tỷ VND (0%)</span>
-      </div>
-      <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
-        <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Hợp đồng Chờ Ký</span>
-        <span id="stat-pending-cnt" style="font-size: 1.6rem; font-weight: 800; color: #eab308;">0</span>
-        <span id="stat-pending-val" style="font-size: 0.75rem; color: #eab308; font-weight: 600;">0 tỷ VND (0%)</span>
-      </div>
-    </div>
-
-    <!-- Layout Grid -->
-    <div class="contracts-layout">
-      
-      <!-- Left Column: Beneficiary Units (Đơn vị thụ hưởng) -->
-      <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; height: fit-content; max-height: 720px;">
-        <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 1.2rem; border-left: 4px solid var(--color-primary); padding-left: 0.6rem;">
-          Đơn vị thụ hưởng
-        </h3>
-        
-        <!-- Search bar for Units -->
-        <div style="position: relative; margin-bottom: 1rem;">
-          <input type="text" id="unit-search" class="form-input" style="padding: 0.6rem 0.9rem; font-size: 0.85rem; border-radius: 8px; width: 100%;" placeholder="🔍 Tìm kiếm đơn vị...">
+    <!-- Dashboard View Container -->
+    <div id="dashboard-view" class="view-container">
+      <!-- Statistics Overview Panel -->
+      <div class="stats-container glass-card" style="margin-top: 1.2rem; padding: 1.2rem 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; border: 1px solid var(--color-surface-border); border-radius: 16px; background: rgba(255, 255, 255, 0.01);">
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem;">
+          <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Tổng số Hợp đồng</span>
+          <span id="stat-total-cnt" style="font-size: 1.6rem; font-weight: 800; color: var(--color-text-primary);">0</span>
+          <span style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600;">100% Hoạt động</span>
         </div>
-        
-        <div id="units-list-container" style="flex-grow: 1; overflow-y: auto; padding-right: 0.2rem;">
-          <!-- Rendered dynamically -->
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
+          <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Tổng Giá trị Dự án</span>
+          <span id="stat-total-val" style="font-size: 1.6rem; font-weight: 800; color: var(--color-accent);">0 tỷ VND</span>
+          <span style="font-size: 0.75rem; color: var(--color-text-muted);">Hệ sinh thái Y tế số VNPT</span>
+        </div>
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
+          <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Hợp đồng đã Ký số</span>
+          <span id="stat-signed-cnt" style="font-size: 1.6rem; font-weight: 800; color: #22c55e;">0</span>
+          <span id="stat-signed-val" style="font-size: 0.75rem; color: #22c55e; font-weight: 600;">0 tỷ VND (0%)</span>
+        </div>
+        <div class="stat-card" style="display: flex; flex-direction: column; gap: 0.25rem; border-left: 1px solid var(--color-surface-border); padding-left: 1.5rem;">
+          <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Hợp đồng Chờ Ký</span>
+          <span id="stat-pending-cnt" style="font-size: 1.6rem; font-weight: 800; color: #eab308;">0</span>
+          <span id="stat-pending-val" style="font-size: 0.75rem; color: #eab308; font-weight: 600;">0 tỷ VND (0%)</span>
         </div>
       </div>
       
-      <!-- Center Column: Contracts of Selected Unit -->
-      <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; height: fit-content; min-height: 480px;">
-        <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 1.2rem; border-left: 4px solid var(--color-accent); padding-left: 0.6rem;" id="selected-unit-title">
-          Danh sách văn bản / hợp đồng
-        </h3>
+      <!-- Units Master Card -->
+      <div class="glass-card" style="margin-top: 1.5rem; padding: 1.5rem; display: flex; flex-direction: column; min-height: 520px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; gap: 1rem; flex-wrap: wrap;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; border-left: 4px solid var(--color-primary); padding-left: 0.6rem; margin: 0; white-space: nowrap;">
+            Theo dõi hợp đồng theo Đơn vị thụ hưởng
+          </h3>
+          <input type="text" id="dashboard-unit-search" class="form-input" style="padding: 0.55rem 0.9rem; font-size: 0.82rem; border-radius: 8px; width: 320px; margin: 0;" placeholder="🔍 Tìm kiếm đơn vị y tế...">
+        </div>
         
         <div class="table-responsive" style="flex-grow: 1;">
-          <table class="premium-table" style="font-size: 0.85rem;">
+          <table class="premium-table" style="font-size: 0.85rem; width: 100%;">
             <thead>
               <tr>
-                <th>Mã hợp đồng</th>
-                <th>Tên hợp đồng / nội dung</th>
-                <th style="width: 130px;">Giá trị</th>
-                <th style="text-align: center; width: 100px;">Trạng thái</th>
+                <th style="width: 60px; text-align: center;">STT</th>
+                <th>Đơn vị thụ hưởng</th>
+                <th style="width: 140px; text-align: center;">Số văn bản</th>
+                <th style="width: 160px; text-align: center;">Trạng thái ký số</th>
+                <th style="width: 180px; text-align: right;">Tổng giá trị thầu</th>
+                <th style="width: 180px; text-align: center;">Thời hạn hợp đồng</th>
+                <th style="width: 140px; text-align: center;">Thao tác</th>
               </tr>
             </thead>
-            <tbody id="contracts-tbody">
+            <tbody id="dashboard-units-tbody">
               <!-- Rendered dynamically -->
             </tbody>
           </table>
         </div>
       </div>
+    </div>
 
-      <!-- Right Column: Contract Detail and Actions -->
-      <div class="glass-card" id="detail-panel" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; height: fit-content; min-height: 520px;">
-        <!-- Placeholder if nothing selected -->
-        <div id="detail-placeholder" style="text-align: center; color: var(--color-text-muted); padding: 4rem 1rem; flex-grow: 1;">
-          <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">📄</div>
-          <h4 style="font-size: 1rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">Chưa chọn hợp đồng</h4>
-          <p style="font-size: 0.82rem;">Vui lòng chọn một dòng hợp đồng ở giữa để xem chi tiết và ký số.</p>
+    <!-- Detail View Container (Initially Hidden) -->
+    <div id="detail-view" class="view-container hidden">
+      <!-- Navigation Header -->
+      <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1.2rem; flex-wrap: wrap;">
+        <button class="btn-secondary" onclick="switchView('dashboard')" style="padding: 0.5rem 1rem; font-size: 0.82rem; border-radius: 8px; margin: 0; display: inline-flex; align-items: center; gap: 0.35rem;">
+          ◀ Quay lại Tổng quan
+        </button>
+        <h3 id="detail-unit-title" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--color-text-primary); margin: 0;">
+          Hợp đồng tại Bệnh viện Bến Sắn
+        </h3>
+      </div>
+      
+      <!-- Workspace Container (Contracts Table + Details Panel) -->
+      <div style="display: flex; gap: 1.2rem; margin-top: 1.5rem; align-items: stretch; position: relative; min-width: 0;">
+        
+        <!-- Left: Contracts Table Card -->
+        <div class="glass-card" id="table-card" style="padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; min-height: 520px; transition: all 0.3s ease; min-width: 0;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 1.2rem; border-left: 4px solid var(--color-accent); padding-left: 0.6rem;" id="selected-unit-title">
+            Danh sách văn bản / hợp đồng
+          </h3>
+          
+          <div class="table-responsive" style="flex-grow: 1;">
+            <table class="premium-table" style="font-size: 0.85rem; width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align: center;"><input type="checkbox" id="check-all-contracts" style="transform: scale(1.1); cursor: pointer;"></th>
+                  <th style="width: 140px;">Mã hợp đồng</th>
+                  <th>Tên hợp đồng / nội dung</th>
+                  <th style="width: 120px;">Giá trị</th>
+                  <th style="width: 110px;">Ngày hết hạn</th>
+                  <th style="text-align: center; width: 90px;">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="contracts-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Sum Container (glowing banner) -->
+          <div id="selected-sum-container" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.2rem; background: rgba(6, 182, 212, 0.06); border: 1px dashed var(--color-primary); border-radius: 10px; margin-top: 1rem; transition: all 0.25s;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.1rem;">💰</span>
+              <span style="font-weight: 600; font-size: 0.82rem; color: var(--color-text-primary);">Tổng doanh thu 2026 các hợp đồng tích chọn:</span>
+            </div>
+            <span id="selected-sum-value" style="font-size: 1.1rem; font-weight: 800; color: var(--color-accent);">0 VND</span>
+          </div>
+        </div>
+
+        <!-- Right: Contract Detail Card -->
+        <div class="glass-card hidden" id="detail-panel" style="width: 420px; flex-shrink: 0; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; min-height: 520px; position: relative; transition: all 0.3s ease;">
+          <!-- Close button for details -->
+          <button id="btn-close-details" style="position: absolute; top: 1.2rem; right: 1.2rem; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--color-text-muted); z-index: 10;" title="Đóng bảng chi tiết">&times;</button>
+          
+          <!-- Placeholder if nothing selected -->
+          <div id="detail-placeholder" style="text-align: center; color: var(--color-text-muted); padding: 4rem 1rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">📄</div>
+            <h4 style="font-size: 1rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">Chưa chọn hợp đồng</h4>
+            <p style="font-size: 0.82rem;">Vui lòng chọn một dòng hợp đồng ở giữa để xem chi tiết và ký số.</p>
+          </div>
+          
+          <!-- Detailed Info (hidden by default) -->
+          <div id="detail-content" class="hidden" style="display: flex; flex-direction: column; gap: 1.2rem; flex-grow: 1;">
+            <div>
+              <span class="status-pill" id="detail-status-pill">Chờ ký</span>
+              <h3 id="detail-contract-name" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-top: 0.6rem; margin-bottom: 0.25rem; color: var(--color-text-primary); line-height: 1.3; padding-right: 1.5rem;">
+                TTYT Huyện Bàu Bàng
+              </h3>
+              <p id="detail-contract-code" style="font-family: monospace; font-size: 0.8rem; color: var(--color-text-muted);">
+                HD-2026-TTYT-BB
+              </p>
+            </div>
+            
+            <table class="xml-info-table">
+              <tr>
+                <td style="width: 100px;">Gói dịch vụ:</td>
+                <td id="detail-package">-</td>
+              </tr>
+              <tr>
+                <td>Đơn vị ký:</td>
+                <td>Chi nhánh VNPT Bình Dương</td>
+              </tr>
+              <tr>
+                <td>Giá trị thầu:</td>
+                <td id="detail-value" style="font-weight: 700; color: var(--color-accent);">-</td>
+              </tr>
+              <tr>
+                <td>Ngày hiệu lực:</td>
+                <td id="detail-date">-</td>
+              </tr>
+              <tr>
+                <td>Ngày hết hạn:</td>
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; position: relative; width: 100%;">
+                    <span id="detail-end-date" style="font-weight: 600;">-</span>
+                    <button id="btn-edit-end-date" style="background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0.1rem; opacity: 0.7; transition: opacity 0.2s;" title="Chỉnh sửa ngày hết hạn">✏️</button>
+                    <div id="end-date-edit-container" class="hidden" style="display: flex; align-items: center; gap: 0.25rem; position: absolute; right: 0; background: var(--color-surface); padding: 0.2rem; border-radius: 4px; z-index: 10; box-shadow: var(--shadow-sm);">
+                      <input type="date" id="input-end-date" class="form-input" style="padding: 0.2rem 0.4rem; font-size: 0.75rem; border-radius: 4px; width: 110px;">
+                      <button id="btn-save-end-date" class="btn-primary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; border-radius: 4px;">Lưu</button>
+                      <button id="btn-cancel-end-date" class="btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; border-radius: 4px;">Hủy</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Tệp đính kèm:</td>
+                <td id="detail-filename" style="word-break: break-all; font-family: monospace; font-size: 0.8rem; color: var(--color-primary); font-weight: 600;">-</td>
+              </tr>
+            </table>
+            
+            <!-- Implementation Milestones -->
+            <div>
+              <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">
+                Mốc dự án thanh toán
+              </h4>
+              <ul class="milestone-list">
+                <li class="milestone-item done" id="ms-1">
+                  <div class="milestone-title">Đặt cọc & Biên bản thỏa thuận (30%)</div>
+                  <div class="milestone-desc">Đã hoàn thành bàn giao hồ sơ dự án sơ bộ.</div>
+                </li>
+                <li class="milestone-item" id="ms-2">
+                  <div class="milestone-title">Nghiệm thu phần mềm & Ký kết hợp đồng (40%)</div>
+                  <div class="milestone-desc" id="ms-2-desc">Yêu cầu hoàn thành thủ tục ký số USB Token/SmartCA.</div>
+                </li>
+                <li class="milestone-item" id="ms-3">
+                  <div class="milestone-title">Nghiệm thu triển khai thực tế & Thanh lý (30%)</div>
+                  <div class="milestone-desc">Đang đợi chạy thử nghiệm hệ thống HIS L2.</div>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Digital Signature Stamp Display -->
+            <div id="detail-stamp-container"></div>
+            
+            <!-- Action Buttons -->
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+              <button class="btn-primary" id="btn-show-sign-modal" style="padding: 1rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem; width: 100%;">
+                ✍️ Ký số Biên bản Hợp đồng
+              </button>
+              <button class="btn-secondary" id="btn-download-pdf" style="padding: 1rem; border-radius: 12px; width: 100%; margin-left: 0; font-weight: 600;">
+                📥 Tải tệp tin hợp đồng PDF
+              </button>
+            </div>
+          </div>
         </div>
         
-        <!-- Detailed Info (hidden by default) -->
-        <div id="detail-content" class="hidden" style="display: flex; flex-direction: column; gap: 1.2rem; flex-grow: 1;">
-          <div>
-            <span class="status-pill" id="detail-status-pill">Chờ ký</span>
-            <h3 id="detail-contract-name" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-top: 0.6rem; margin-bottom: 0.25rem; color: var(--color-text-primary); line-height: 1.3;">
-              TTYT Huyện Bàu Bàng
-            </h3>
-            <p id="detail-contract-code" style="font-family: monospace; font-size: 0.8rem; color: var(--color-text-muted);">
-              HD-2026-TTYT-BB
-            </p>
-          </div>
-          
-          <table class="xml-info-table">
-            <tr>
-              <td style="width: 100px;">Gói dịch vụ:</td>
-              <td id="detail-package">-</td>
-            </tr>
-            <tr>
-              <td>Đơn vị ký:</td>
-              <td>Chi nhánh VNPT Bình Dương</td>
-            </tr>
-            <tr>
-              <td>Giá trị thầu:</td>
-              <td id="detail-value" style="font-weight: 700; color: var(--color-accent);">-</td>
-            </tr>
-            <tr>
-              <td>Ngày ký kết:</td>
-              <td id="detail-date">-</td>
-            </tr>
-            <tr>
-              <td>Tệp đính kèm:</td>
-              <td id="detail-filename" style="word-break: break-all; font-family: monospace; font-size: 0.8rem; color: var(--color-primary); font-weight: 600;">-</td>
-            </tr>
-          </table>
-          
-          <!-- Implementation Milestones -->
-          <div>
-            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">
-              Mốc dự án thanh toán
-            </h4>
-            <ul class="milestone-list">
-              <li class="milestone-item done" id="ms-1">
-                <div class="milestone-title">Đặt cọc & Biên bản thỏa thuận (30%)</div>
-                <div class="milestone-desc">Đã hoàn thành bàn giao hồ sơ dự án sơ bộ.</div>
-              </li>
-              <li class="milestone-item" id="ms-2">
-                <div class="milestone-title">Nghiệm thu phần mềm & Ký kết hợp đồng (40%)</div>
-                <div class="milestone-desc" id="ms-2-desc">Yêu cầu hoàn thành thủ tục ký số USB Token/SmartCA.</div>
-              </li>
-              <li class="milestone-item" id="ms-3">
-                <div class="milestone-title">Nghiệm thu triển khai thực tế & Thanh lý (30%)</div>
-                <div class="milestone-desc">Đang đợi chạy thử nghiệm hệ thống HIS L2.</div>
-              </li>
-            </ul>
-          </div>
-          
-          <!-- Digital Signature Stamp Display -->
-          <div id="detail-stamp-container"></div>
-          
-          <!-- Action Buttons -->
-          <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.6rem;">
-            <button class="btn-primary" id="btn-show-sign-modal" style="padding: 1rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem; width: 100%;">
-              ✍️ Ký số Biên bản Hợp đồng
-            </button>
-            <button class="btn-secondary" id="btn-download-pdf" style="padding: 1rem; border-radius: 12px; width: 100%; margin-left: 0; font-weight: 600;">
-              📥 Tải tệp tin hợp đồng PDF
-            </button>
+      </div>
+    </div>ý số Biên bản Hợp đồng
+              </button>
+              <button class="btn-secondary" id="btn-download-pdf" style="padding: 1rem; border-radius: 12px; width: 100%; margin-left: 0; font-weight: 600;">
+                📥 Tải tệp tin hợp đồng PDF
+              </button>
+            </div>
           </div>
         </div>
 
       </div>
-
     </div>
 
   </main>
@@ -601,7 +720,7 @@
   <!-- Scripts -->
   <script>
     // Data representation representing the organized contract life cycle by Beneficiary Unit
-                let units = [
+                    let units = [
       {
         "id": "tyt_phuong_ben_cat",
         "name": "TYT Phường Bến Cát",
@@ -616,6 +735,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -639,6 +759,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "18,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -662,6 +783,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -685,6 +807,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -708,6 +831,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -731,6 +855,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -754,6 +879,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "18,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -777,6 +903,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -800,6 +927,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "32,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -823,6 +951,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "32,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -846,6 +975,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "32,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -869,6 +999,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -892,6 +1023,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -915,6 +1047,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "39,600,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -938,6 +1071,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -961,6 +1095,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -984,6 +1119,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "16,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1007,6 +1143,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "16,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1030,6 +1167,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1053,6 +1191,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "18,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1076,6 +1215,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "32,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1099,6 +1239,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1122,6 +1263,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1145,6 +1287,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "19,800,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1168,6 +1311,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "39,600,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1191,6 +1335,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1214,6 +1359,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "32,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1237,6 +1383,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1260,6 +1407,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1283,6 +1431,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1306,6 +1455,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "25,200,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1329,6 +1479,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "108,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1352,6 +1503,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "18,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1375,6 +1527,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "35,400,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1398,6 +1551,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "36,600,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1421,6 +1575,7 @@
             "package": "Hệ thống Quản lý Y tế Cơ sở HMIS",
             "value": "18,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1444,6 +1599,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "42,000,000 VND",
             "date": "22/08/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1467,6 +1623,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "153,000,000 VND",
             "date": "14/05/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1490,6 +1647,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "102,000,000 VND",
             "date": "01/10/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1513,6 +1671,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "549,000,000 VND",
             "date": "09/07/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1536,6 +1695,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "30,600,000 VND",
             "date": "13/11/2023",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1559,6 +1719,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "233,280,000 VND",
             "date": "01/04/2026",
+            "endDate": "31/03/2027",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1582,6 +1743,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "226,800,000 VND",
             "date": "12/05/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1605,6 +1767,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "1,619,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1628,6 +1791,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "24,000,000 VND",
             "date": "09/07/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1651,6 +1815,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "402,000,000 VND",
             "date": "01/01/2026",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1674,6 +1839,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "1,800,000,000 VND",
             "date": "10/06/2025",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1697,6 +1863,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "116,640,000 VND",
             "date": "04/04/2026",
+            "endDate": "",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1720,6 +1887,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "211,370,000 VND",
             "date": "01/04/2026",
+            "endDate": "31/12/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1736,6 +1904,7 @@
             "package": "Hệ thống Bệnh án điện tử EMR",
             "value": "49,174,000 VND",
             "date": "01/01/2026",
+            "endDate": "31/03/2026",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1759,6 +1928,7 @@
             "package": "Hệ thống thông tin bệnh viện HIS L2",
             "value": "90,000,000 VND",
             "date": "01/04/2026",
+            "endDate": "31/03/2027",
             "status": "signed",
             "ms1Done": true,
             "ms2Done": true,
@@ -1770,9 +1940,51 @@
       }
     ];
 
+    // Database state management
+    let storedUnits = localStorage.getItem('vnpt_his_units');
+    if (storedUnits) {
+      try {
+        const parsed = JSON.parse(storedUnits);
+        // Migration check: verify if the first contract has an endDate property
+        if (parsed.length > 0 && parsed[0].contracts.length > 0 && ('endDate' in parsed[0].contracts[0])) {
+          units = parsed;
+        } else {
+          console.log("Migration: localStorage does not have endDate fields, reloading defaults...");
+          localStorage.setItem('vnpt_his_units', JSON.stringify(units));
+        }
+      } catch (e) {
+        console.error("Error parsing stored units:", e);
+      }
+    } else {
+      localStorage.setItem('vnpt_his_units', JSON.stringify(units));
+    }
+
     let selectedUnitId = "trung_tam_y_te_kv_bac_tan_uyen";
     let selectedContractId = null;
     let selectedSignMethod = '';
+    let checkedContractIds = []; // Stores IDs of checked contracts
+
+    function toggleTheme() {
+      const currentTheme = localStorage.getItem('vnpt_his_theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('vnpt_his_theme', newTheme);
+      
+      const themeIcon = document.getElementById('theme-icon');
+      if (newTheme === 'light') {
+        document.body.classList.add('light-theme');
+        if (themeIcon) themeIcon.textContent = '🌙';
+      } else {
+        document.body.classList.remove('light-theme');
+        if (themeIcon) themeIcon.textContent = '☀️';
+      }
+    }
+
+    function resetDatabase() {
+      if (confirm("Bạn có chắc chắn muốn đặt lại cơ sở dữ liệu hợp đồng về mặc định không? Tất cả các ngày hết hạn đã lưu và trạng thái ký sẽ bị xóa.")) {
+        localStorage.removeItem('vnpt_his_units');
+        location.reload();
+      }
+    }
 
     function updateGlobalStats() {
       let totalCount = 0;
@@ -1785,7 +1997,7 @@
       units.forEach(u => {
         u.contracts.forEach(c => {
           totalCount++;
-                    let valNum = 0;
+          let valNum = 0;
           if (!c.value.includes('Đơn giá') && !c.value.includes('ca chụp')) {
             valNum = parseInt(c.value.replace(/[^0-9]/g, '')) || 0;
           }
@@ -1808,91 +2020,78 @@
       document.getElementById('stat-pending-val').textContent = (pendingVal / 1e9).toFixed(2) + ' tỷ VND (' + (pendingVal / (totalVal || 1) * 100).toFixed(1) + '%)';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      updateGlobalStats();
-      // Initialize theme icon text
-      const savedTheme = localStorage.getItem('vnpt_his_theme') || 'dark';
-      const themeIcon = document.getElementById('theme-icon');
-      if (themeIcon) {
-        themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
-      }
-
-      // Listen to theme changes from other tabs
-      window.addEventListener('storage', (e) => {
-        if (e.key === 'vnpt_his_theme') {
-          const newTheme = e.newValue || 'dark';
-          if (newTheme === 'light') {
-            document.body.classList.add('light-theme');
-            if (themeIcon) themeIcon.textContent = '🌙';
-          } else {
-            document.body.classList.remove('light-theme');
-            if (themeIcon) themeIcon.textContent = '☀️';
-          }
-        }
-      });
-
-      // Unit Search input handler
-      const searchInput = document.getElementById('unit-search');
-      if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-          renderUnitsList(e.target.value);
-        });
-      }
-
-      // Render initial sidebar and table
-      renderUnitsList();
-      selectUnit("trung_tam_y_te_kv_bac_tan_uyen");
-
-      // Show Sign Modal click handler
-      document.getElementById('btn-show-sign-modal').addEventListener('click', () => {
-        openSignModal();
-      });
-
-      // PDF click handler
-      document.getElementById('btn-download-pdf').addEventListener('click', () => {
-        const c = getSelectedContract();
-        if (c) {
-          alert(`Đang tải xuống tệp tin hợp đồng: ${c.fileName} (${c.fileSize})`);
-        }
-      });
-    });
-
-    // Theme toggler
-    function toggleTheme() {
-      const currentTheme = localStorage.getItem('vnpt_his_theme') || 'dark';
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      localStorage.setItem('vnpt_his_theme', newTheme);
-      
-      if (newTheme === 'light') {
-        document.body.classList.add('light-theme');
-        document.getElementById('theme-icon').textContent = '🌙';
-      } else {
-        document.body.classList.remove('light-theme');
-        document.getElementById('theme-icon').textContent = '☀️';
-      }
+    // Helper to get selected unit
+    function getSelectedUnit() {
+      return units.find(u => u.id === selectedUnitId);
     }
 
-    // Helper: get selected contract
+    // Helper to get selected contract
     function getSelectedContract() {
-      if (!selectedUnitId || !selectedContractId) return null;
-      const unit = units.find(u => u.id === selectedUnitId);
-      if (!unit) return null;
-      return unit.contracts.find(c => c.id === selectedContractId);
+      const u = getSelectedUnit();
+      return u ? u.contracts.find(c => c.id === selectedContractId) : null;
     }
 
-    // Render units list on the left column
-    function renderUnitsList(filterText = '') {
-      const container = document.getElementById('units-list-container');
-      if (!container) return;
+    // Helper to calculate expiration status of a contract relative to 2026-06-11
+    function getExpirationStatus(endDateStr) {
+      if (!endDateStr) return { text: 'Chưa có', class: 'status-draft' };
       
-      container.innerHTML = '';
+      const parts = endDateStr.split('/');
+      if (parts.length !== 3) return { text: 'Chưa có', class: 'status-draft' };
+      
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // 0-indexed month
+      const year = parseInt(parts[2], 10);
+      const endDate = new Date(year, month, day);
+      
+      const currentDate = new Date(2026, 5, 11); // June 11, 2026
+      endDate.setHours(0,0,0,0);
+      currentDate.setHours(0,0,0,0);
+      
+      const diffTime = endDate.getTime() - currentDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) {
+        return { text: 'Quá hạn', class: 'status-danger' };
+      } else if (diffDays <= 30) {
+        return { text: 'Sắp hết hạn', class: 'status-pending' };
+      } else {
+        return { text: 'Còn hiệu lực', class: 'status-signed' };
+      }
+    }
+
+    // Helper to calculate aggregate expiration status of a unit
+    function getUnitExpirationStatus(contracts) {
+      if (!contracts || contracts.length === 0) return { text: 'Không có HĐ', class: 'status-draft' };
+      
+      let hasExpired = false;
+      let hasNear = false;
+      let hasActive = false;
+      
+      contracts.forEach(c => {
+        const stat = getExpirationStatus(c.endDate);
+        if (stat.text === 'Quá hạn') hasExpired = true;
+        else if (stat.text === 'Sắp hết hạn') hasNear = true;
+        else if (stat.text === 'Còn hiệu lực') hasActive = true;
+      });
+      
+      if (hasExpired) return { text: 'Đã quá hạn', class: 'status-danger' };
+      if (hasNear) return { text: 'Sắp hết hạn', class: 'status-pending' };
+      if (hasActive) return { text: 'Còn hiệu lực', class: 'status-signed' };
+      return { text: 'Chưa có ngày hết hạn', class: 'status-draft' };
+    }
+
+    // Render Dashboard Units Summary Table
+    function renderDashboardUnitsTable(filterText = '') {
+      const tbody = document.getElementById('dashboard-units-tbody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
       const query = filterText.toLowerCase().trim();
+      let index = 1;
       
       units.forEach(unit => {
         if (query && !unit.name.toLowerCase().includes(query)) return;
         
-        // Count statuses
         const total = unit.contracts.length;
         const pendingCount = unit.contracts.filter(c => c.status === 'pending').length;
         const signedCount = unit.contracts.filter(c => c.status === 'signed').length;
@@ -1905,63 +2104,205 @@
         } else if (signedCount === total) {
           badgeColor = '#22c55e';
         }
-
-        const div = document.createElement('div');
-        div.className = `unit-card ${unit.id === selectedUnitId ? 'active' : ''}`;
-        div.onclick = () => selectUnit(unit.id);
-        div.innerHTML = `
-          <div class="unit-avatar">${unit.avatar}</div>
-          <div class="unit-info">
-            <div class="unit-name" title="${unit.name}">${unit.name}</div>
-            <div class="unit-meta">
-              <span>${total} văn bản</span>
-              <span style="color: ${badgeColor}; font-weight: 700;">${statusBadgeText}</span>
+        
+        // Sum total value of contracts
+        let unitValueSum = 0;
+        unit.contracts.forEach(c => {
+          if (!c.value.includes('Đơn giá') && !c.value.includes('ca chụp')) {
+            unitValueSum += parseInt(c.value.replace(/[^0-9]/g, '')) || 0;
+          }
+        });
+        
+        const expStatus = getUnitExpirationStatus(unit.contracts);
+        
+        const tr = document.createElement('tr');
+        tr.className = 'contract-row';
+        tr.onclick = () => {
+          selectUnit(unit.id);
+          switchView('detail');
+        };
+        
+        tr.innerHTML = `
+          <td style="text-align: center;"><strong>${index++}</strong></td>
+          <td style="font-weight: 600; color: var(--color-text-primary);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="unit-avatar" style="width: 32px; height: 32px; font-size: 0.85rem; box-shadow: none;">${unit.avatar}</div>
+              <span>${unit.name}</span>
             </div>
-          </div>
+          </td>
+          <td style="text-align: center;">${total} văn bản</td>
+          <td style="text-align: center;"><span style="color: ${badgeColor}; font-weight: 700;">${statusBadgeText}</span></td>
+          <td style="text-align: right; font-weight: 700; color: var(--color-accent);">${unitValueSum > 0 ? unitValueSum.toLocaleString('vi-VN') + ' VND' : 'Theo đơn giá'}</td>
+          <td style="text-align: center;"><span class="status-pill ${expStatus.class}">${expStatus.text}</span></td>
+          <td style="text-align: center;" onclick="event.stopPropagation();">
+            <button class="btn-primary" onclick="selectUnit('${unit.id}'); switchView('detail');" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 6px;">📄 Xem hợp đồng</button>
+          </td>
         `;
-        container.appendChild(div);
+        tbody.appendChild(tr);
       });
+      
+      if (tbody.children.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted); padding: 2rem;">Không tìm thấy đơn vị nào phù hợp.</td></tr>';
+      }
     }
 
-    // Select unit action
+    // Select Unit
     function selectUnit(unitId) {
       selectedUnitId = unitId;
-      selectedContractId = null;
+      selectedContractId = null; // Reset selection in table
       
-      // Update active cards
-      document.querySelectorAll('.unit-card').forEach(card => {
-        card.classList.remove('active');
-      });
-      // Highlight current selected card
-      renderUnitsList(document.getElementById('unit-search')?.value || '');
-      
-      // Update table title
-      const unit = units.find(u => u.id === unitId);
+      // Auto-check all contracts of this unit by default
+      const unit = units.find(u => u.id === selectedUnitId);
       if (unit) {
-        document.getElementById('selected-unit-title').textContent = `Hợp đồng tại ${unit.name}`;
+        checkedContractIds = unit.contracts.map(c => c.id);
+      } else {
+        checkedContractIds = [];
+      }
+
+      // Hide detail panel by default when switching units
+      document.getElementById('detail-panel').classList.add('hidden');
+
+      if (unit) {
+        document.getElementById('detail-unit-title').innerHTML = `Hợp đồng tại <strong>${unit.name}</strong>`;
       }
 
       renderContractsTable();
-
-      // Reset detail panel
-      document.getElementById('detail-placeholder').classList.remove('hidden');
-      document.getElementById('detail-content').classList.add('hidden');
+      updateCheckedSum();
     }
 
-    // Render Table of Contracts for Selected Unit
+    let currentView = 'dashboard';
+    
+    function switchView(viewName) {
+      currentView = viewName;
+      const dashboardView = document.getElementById('dashboard-view');
+      const detailView = document.getElementById('detail-view');
+      
+      if (viewName === 'dashboard') {
+        dashboardView.classList.remove('hidden');
+        detailView.classList.add('hidden');
+        renderDashboardUnitsTable(document.getElementById('dashboard-unit-search')?.value || '');
+      } else {
+        dashboardView.classList.add('hidden');
+        detailView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }
+
+    // Toggle single contract checkbox
+    function toggleContractCheck(contractId, isChecked) {
+      if (isChecked) {
+        if (!checkedContractIds.includes(contractId)) {
+          checkedContractIds.push(contractId);
+        }
+      } else {
+        checkedContractIds = checkedContractIds.filter(id => id !== contractId);
+      }
+      
+      updateCheckedSum();
+      updateMasterCheckboxState();
+    }
+
+    // Toggle Select All checkbox
+    function toggleSelectAllContracts(masterCheckbox) {
+      const unit = getSelectedUnit();
+      if (!unit) return;
+      
+      const currentUnitContractIds = unit.contracts.map(c => c.id);
+      
+      if (masterCheckbox.checked) {
+        // Add all current unit contract IDs
+        currentUnitContractIds.forEach(id => {
+          if (!checkedContractIds.includes(id)) {
+            checkedContractIds.push(id);
+          }
+        });
+      } else {
+        // Remove all current unit contract IDs
+        checkedContractIds = checkedContractIds.filter(id => !currentUnitContractIds.includes(id));
+      }
+      
+      // Re-render table checkboxes
+      renderContractsTable();
+      updateCheckedSum();
+    }
+
+    // Update the master checkbox checked/indeterminate state
+    function updateMasterCheckboxState() {
+      const masterCheckbox = document.getElementById('check-all-contracts');
+      if (!masterCheckbox) return;
+      
+      const unit = getSelectedUnit();
+      if (!unit || unit.contracts.length === 0) {
+        masterCheckbox.checked = false;
+        masterCheckbox.disabled = true;
+        return;
+      }
+      
+      masterCheckbox.disabled = false;
+      const currentUnitContractIds = unit.contracts.map(c => c.id);
+      const checkedInUnit = currentUnitContractIds.filter(id => checkedContractIds.includes(id));
+      
+      if (checkedInUnit.length === 0) {
+        masterCheckbox.checked = false;
+        masterCheckbox.indeterminate = false;
+      } else if (checkedInUnit.length === currentUnitContractIds.length) {
+        masterCheckbox.checked = true;
+        masterCheckbox.indeterminate = false;
+      } else {
+        masterCheckbox.checked = false;
+        masterCheckbox.indeterminate = true;
+      }
+    }
+
+    // Calculate sum of checked contracts and update display
+    function updateCheckedSum() {
+      let sum = 0;
+      units.forEach(u => {
+        u.contracts.forEach(c => {
+          if (checkedContractIds.includes(c.id)) {
+            let valNum = 0;
+            if (!c.value.includes('Đơn giá') && !c.value.includes('ca chụp')) {
+              valNum = parseInt(c.value.replace(/[^0-9]/g, '')) || 0;
+            }
+            sum += valNum;
+          }
+        });
+      });
+      
+      document.getElementById('selected-sum-value').textContent = sum.toLocaleString('vi-VN') + ' VND';
+      
+      // Glow effect if sum > 0
+      const sumContainer = document.getElementById('selected-sum-container');
+      if (sum > 0) {
+        sumContainer.style.boxShadow = '0 0 15px rgba(6, 182, 212, 0.15)';
+        sumContainer.style.background = 'rgba(6, 182, 212, 0.09)';
+      } else {
+        sumContainer.style.boxShadow = 'none';
+        sumContainer.style.background = 'rgba(6, 182, 212, 0.06)';
+      }
+    }
+
+    // Render Contracts Table
     function renderContractsTable() {
       const tbody = document.getElementById('contracts-tbody');
       tbody.innerHTML = '';
 
-      const unit = units.find(u => u.id === selectedUnitId);
+      const unit = getSelectedUnit();
       if (!unit || unit.contracts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-muted);">Không có văn bản nào.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-muted);">Không có văn bản nào.</td></tr>';
+        updateMasterCheckboxState();
         return;
       }
 
+      // Update unit title header
+      document.getElementById('selected-unit-title').innerHTML = `Danh sách văn bản / hợp đồng tại <strong>${unit.name}</strong>`;
+
       unit.contracts.forEach(c => {
+        const isChecked = checkedContractIds.includes(c.id);
+        const isSelected = c.id === selectedContractId;
+        
         const tr = document.createElement('tr');
-        tr.className = `contract-row ${c.id === selectedContractId ? 'selected' : ''}`;
+        tr.className = `contract-row ${isSelected ? 'selected' : ''}`;
         tr.onclick = () => selectContract(c.id);
 
         let statusClass = 'status-draft';
@@ -1974,14 +2315,22 @@
           statusText = 'Chờ ký';
         }
 
+        const expDateDisplay = c.endDate ? c.endDate : '<span style="color: var(--color-text-muted); font-size: 0.8rem; font-style: italic;">Chưa có (✏️)</span>';
+
         tr.innerHTML = `
+          <td style="text-align: center;" onclick="event.stopPropagation();">
+            <input type="checkbox" class="contract-check" data-id="${c.id}" ${isChecked ? 'checked' : ''} style="transform: scale(1.1); cursor: pointer;" onclick="toggleContractCheck('${c.id}', this.checked)">
+          </td>
           <td><strong>${c.code}</strong></td>
           <td style="font-weight: 600; color: var(--color-text-primary);" title="${c.name}">${c.name}</td>
           <td style="font-weight: 700; color: var(--color-accent);">${c.value}</td>
+          <td style="font-weight: 500;">${expDateDisplay}</td>
           <td style="text-align: center;"><span class="status-pill ${statusClass}">${statusText}</span></td>
         `;
         tbody.appendChild(tr);
       });
+      
+      updateMasterCheckboxState();
     }
 
     // Select contract
@@ -1989,6 +2338,10 @@
       selectedContractId = contractId;
       renderContractsTable();
 
+      // Show detail panel
+      const detailPanel = document.getElementById('detail-panel');
+      detailPanel.classList.remove('hidden');
+      
       document.getElementById('detail-placeholder').classList.add('hidden');
       const detailContainer = document.getElementById('detail-content');
       detailContainer.classList.remove('hidden');
@@ -2001,7 +2354,13 @@
       document.getElementById('detail-package').textContent = c.package;
       document.getElementById('detail-value').textContent = c.value;
       document.getElementById('detail-date').textContent = c.date;
+      document.getElementById('detail-end-date').innerHTML = c.endDate ? c.endDate : '<span style="color: var(--color-text-muted); font-style: italic; font-size: 0.85rem;">Chưa có (Nhấp ✏️ để sửa)</span>';
       document.getElementById('detail-filename').textContent = `${c.fileName} (${c.fileSize})`;
+
+      // Reset inline date picker elements
+      document.getElementById('end-date-edit-container').classList.add('hidden');
+      document.getElementById('detail-end-date').classList.remove('hidden');
+      document.getElementById('btn-edit-end-date').classList.remove('hidden');
 
       // Status pill in details
       const pill = document.getElementById('detail-status-pill');
@@ -2146,8 +2505,11 @@
         }
         c.signedTime = formattedDate;
 
+        // Persist to localStorage
+        localStorage.setItem('vnpt_his_units', JSON.stringify(units));
+
         // Refresh lists and details
-        renderUnitsList(document.getElementById('unit-search')?.value || '');
+        renderDashboardUnitsTable(document.getElementById('dashboard-unit-search')?.value || '');
         renderContractsTable();
         updateGlobalStats();
         selectContract(selectedContractId);
@@ -2160,6 +2522,173 @@
     function pad(n) {
       return n < 10 ? '0' + n : n;
     }
+
+    // Setup DOM Event Listeners on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize layout rendering
+      updateGlobalStats();
+      renderDashboardUnitsTable();
+      switchView('dashboard');
+
+      // Theme initializer setup
+      const savedTheme = localStorage.getItem('vnpt_his_theme') || 'dark';
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) {
+        themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+      }
+
+      // Listen to theme storage events
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'vnpt_his_theme') {
+          const newTheme = e.newValue || 'dark';
+          if (newTheme === 'light') {
+            document.body.classList.add('light-theme');
+            if (themeIcon) themeIcon.textContent = '🌙';
+          } else {
+            document.body.classList.remove('light-theme');
+            if (themeIcon) themeIcon.textContent = '☀️';
+          }
+        }
+        // In case units database changes in other tab
+        if (e.key === 'vnpt_his_units') {
+          const stored = localStorage.getItem('vnpt_his_units');
+          if (stored) {
+            try {
+              units = JSON.parse(stored);
+              renderDashboardUnitsTable(document.getElementById('dashboard-unit-search')?.value || '');
+              renderContractsTable();
+              updateGlobalStats();
+              if (selectedContractId) selectContract(selectedContractId);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        }
+      });
+
+      // Unit search filter on dashboard
+      const dashboardSearchInput = document.getElementById('dashboard-unit-search');
+      if (dashboardSearchInput) {
+        dashboardSearchInput.addEventListener('input', (e) => {
+          renderDashboardUnitsTable(e.target.value);
+        });
+      }
+
+      // Details panel close
+      const btnCloseDetails = document.getElementById('btn-close-details');
+      if (btnCloseDetails) {
+        btnCloseDetails.addEventListener('click', () => {
+          document.getElementById('detail-panel').classList.add('hidden');
+          selectedContractId = null;
+          renderContractsTable();
+        });
+      }
+
+      // Check all contracts checkbox
+      const checkAllBox = document.getElementById('check-all-contracts');
+      if (checkAllBox) {
+        checkAllBox.addEventListener('click', (e) => {
+          toggleSelectAllContracts(e.target);
+        });
+      }
+
+      // Date editing triggers
+      const btnEditEndDate = document.getElementById('btn-edit-end-date');
+      const btnCancelEndDate = document.getElementById('btn-cancel-end-date');
+      const btnSaveEndDate = document.getElementById('btn-save-end-date');
+      const inputEndDate = document.getElementById('input-end-date');
+      const detailEndDate = document.getElementById('detail-end-date');
+      const editContainer = document.getElementById('end-date-edit-container');
+
+      if (btnEditEndDate && editContainer) {
+        btnEditEndDate.addEventListener('click', () => {
+          const c = getSelectedContract();
+          if (!c) return;
+
+          // Pre-fill input value (HTML input type date needs YYYY-MM-DD)
+          if (c.endDate) {
+            const parts = c.endDate.split('/');
+            if (parts.length === 3) {
+              inputEndDate.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            } else {
+              inputEndDate.value = '';
+            }
+          } else {
+            inputEndDate.value = '';
+          }
+
+          // Show input form
+          detailEndDate.classList.add('hidden');
+          btnEditEndDate.classList.add('hidden');
+          editContainer.classList.remove('hidden');
+        });
+      }
+
+      if (btnCancelEndDate) {
+        btnCancelEndDate.addEventListener('click', () => {
+          editContainer.classList.add('hidden');
+          detailEndDate.classList.remove('hidden');
+          btnEditEndDate.classList.remove('hidden');
+        });
+      }
+
+      if (btnSaveEndDate) {
+        btnSaveEndDate.addEventListener('click', () => {
+          const c = getSelectedContract();
+          if (!c) return;
+
+          const dateVal = inputEndDate.value; // YYYY-MM-DD
+          if (dateVal) {
+            const parts = dateVal.split('-');
+            c.endDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          } else {
+            c.endDate = '';
+          }
+
+          // Save to localStorage
+          localStorage.setItem('vnpt_his_units', JSON.stringify(units));
+
+          // Reset UI elements
+          detailEndDate.innerHTML = c.endDate ? c.endDate : '<span style="color: var(--color-text-muted); font-style: italic; font-size: 0.85rem;">Chưa có (Nhấp ✏️ để sửa)</span>';
+          editContainer.classList.add('hidden');
+          detailEndDate.classList.remove('hidden');
+          btnEditEndDate.classList.remove('hidden');
+
+          // Refresh table cells and stats
+          renderContractsTable();
+          updateCheckedSum();
+        });
+      }
+
+      // USB Token pin submit click listener
+      const tokenPinInput = document.getElementById('token-pin');
+      if (tokenPinInput) {
+        tokenPinInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            submitTokenPin();
+          }
+        });
+      }
+
+      // Ký số Biên bản Hợp đồng button click listener
+      const btnShowSignModal = document.getElementById('btn-show-sign-modal');
+      if (btnShowSignModal) {
+        btnShowSignModal.addEventListener('click', () => {
+          openSignModal();
+        });
+      }
+
+      // Download PDF button click listener
+      const btnDownloadPdf = document.getElementById('btn-download-pdf');
+      if (btnDownloadPdf) {
+        btnDownloadPdf.addEventListener('click', () => {
+          const c = getSelectedContract();
+          if (c) {
+            alert(`Đang chuẩn bị tải xuống hợp đồng PDF: ${c.fileName}\n(Giả lập xuất tệp lưu trữ thành công)`);
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
