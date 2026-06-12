@@ -570,10 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
               <img src="https://flagcdn.com/w40/${match.team1FlagCode}.png" class="team-flag-img" alt="${match.team1}">
               <span>${match.team1}</span>
             </div>
-            <div class="score-input-container">
-              <button class="score-control-btn btn-score-dec" data-match-id="${match.id}" data-team="1">-</button>
-              <input type="number" class="score-val-input score-team-1" data-match-id="${match.id}" value="${match.score1 !== null ? match.score1 : ''}" placeholder="-">
-              <button class="score-control-btn btn-score-inc" data-match-id="${match.id}" data-team="1">+</button>
+            <div class="score-display-value">
+              ${match.score1 !== null ? match.score1 : '-'}
             </div>
           </div>
           
@@ -585,45 +583,35 @@ document.addEventListener("DOMContentLoaded", () => {
               <img src="https://flagcdn.com/w40/${match.team2FlagCode}.png" class="team-flag-img" alt="${match.team2}">
               <span>${match.team2}</span>
             </div>
-            <div class="score-input-container">
-              <button class="score-control-btn btn-score-dec" data-match-id="${match.id}" data-team="2">-</button>
-              <input type="number" class="score-val-input score-team-2" data-match-id="${match.id}" value="${match.score2 !== null ? match.score2 : ''}" placeholder="-">
-              <button class="score-control-btn btn-score-inc" data-match-id="${match.id}" data-team="2">+</button>
+            <div class="score-display-value">
+              ${match.score2 !== null ? match.score2 : '-'}
             </div>
           </div>
         </div>
 
-        <!-- Quản lý Thẻ Phạt -->
+        <!-- Thẻ Phạt -->
         <div class="cards-manager">
           <!-- Thẻ Đội 1 -->
           <div class="cards-team-box">
-            <div class="card-control">
+            <div class="card-control-readonly">
               <span class="card-icon yellow-card"></span>
-              <button class="card-btn btn-card-dec" data-match-id="${match.id}" data-card="yc1">-</button>
-              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center;">${match.yc1}</span>
-              <button class="card-btn btn-card-inc" data-match-id="${match.id}" data-card="yc1">+</button>
+              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center; font-weight: 700;">${match.yc1}</span>
             </div>
-            <div class="card-control">
+            <div class="card-control-readonly">
               <span class="card-icon red-card"></span>
-              <button class="card-btn btn-card-dec" data-match-id="${match.id}" data-card="rc1">-</button>
-              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center;">${match.rc1}</span>
-              <button class="card-btn btn-card-inc" data-match-id="${match.id}" data-card="rc1">+</button>
+              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center; font-weight: 700;">${match.rc1}</span>
             </div>
           </div>
 
           <!-- Thẻ Đội 2 -->
           <div class="cards-team-box" style="flex-direction: row-reverse;">
-            <div class="card-control" style="flex-direction: row-reverse;">
+            <div class="card-control-readonly" style="flex-direction: row-reverse;">
               <span class="card-icon yellow-card"></span>
-              <button class="card-btn btn-card-dec" data-match-id="${match.id}" data-card="yc2">-</button>
-              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center;">${match.yc2}</span>
-              <button class="card-btn btn-card-inc" data-match-id="${match.id}" data-card="yc2">+</button>
+              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center; font-weight: 700;">${match.yc2}</span>
             </div>
-            <div class="card-control" style="flex-direction: row-reverse;">
+            <div class="card-control-readonly" style="flex-direction: row-reverse;">
               <span class="card-icon red-card"></span>
-              <button class="card-btn btn-card-dec" data-match-id="${match.id}" data-card="rc2">-</button>
-              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center;">${match.rc2}</span>
-              <button class="card-btn btn-card-inc" data-match-id="${match.id}" data-card="rc2">+</button>
+              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center; font-weight: 700;">${match.rc2}</span>
             </div>
           </div>
         </div>
