@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- PHẦN KHỞI TẠO (INIT) ---
   function init() {
        // 1. Tải dữ liệu từ localStorage hoặc dùng dữ liệu mặc định (Có kiểm tra phiên bản dữ liệu sạch)
-    const CURRENT_VERSION = "4.0";
+    const CURRENT_VERSION = "5.0";
     const savedVersion = localStorage.getItem("wc2026_version");
     const savedMatches = localStorage.getItem("wc2026_matches");
 

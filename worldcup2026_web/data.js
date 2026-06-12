@@ -152,19 +152,14 @@ function generateMatchSchedule() {
       let rc2 = 0;
       let status = "Chưa đấu";
 
-      // Khởi tạo lượt đấu 1 đã kết thúc để hệ thống có số liệu ban đầu sinh động
-      if (pair.round === 1) {
-        const scoreRandom = Math.random();
-        if (scoreRandom < 0.2) { score1 = 0; score2 = 0; }
-        else if (scoreRandom < 0.45) { score1 = 1; score2 = 0; }
-        else if (scoreRandom < 0.7) { score1 = 2; score2 = 1; }
-        else if (scoreRandom < 0.85) { score1 = 1; score2 = 1; }
-        else { score1 = 3; score2 = 2; }
-
-        yc1 = Math.floor(Math.random() * 3); // 0 -> 2 thẻ vàng
-        rc1 = Math.random() > 0.95 ? 1 : 0;  // 5% thẻ đỏ
-        yc2 = Math.floor(Math.random() * 3);
-        rc2 = Math.random() > 0.95 ? 1 : 0;
+      // Khởi tạo: Chỉ có trận khai mạc (Mexico vs Nam Phi) là đã đá, các trận khác chưa diễn ra
+      if (groupLetter === "A" && pair.round === 1 && t1.id === "MEX" && t2.id === "RSA") {
+        score1 = 2;
+        score2 = 0;
+        yc1 = 2;
+        rc1 = 1;
+        yc2 = 3;
+        rc2 = 2;
         status = "Kết thúc";
       }
 
