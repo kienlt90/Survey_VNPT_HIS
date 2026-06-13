@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- PHẦN KHỞI TẠO (INIT) ---
   function init() {
        // 1. Tải dữ liệu từ localStorage hoặc dùng dữ liệu mặc định (Có kiểm tra phiên bản dữ liệu sạch)
-    const CURRENT_VERSION = "8.0";
+    const CURRENT_VERSION = "10.0";
     const savedVersion = localStorage.getItem("wc2026_version");
     const savedMatches = localStorage.getItem("wc2026_matches");
 
@@ -524,6 +524,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("matches-container");
     container.innerHTML = "";
 
+    function getScorersForMatch(match, teamNum) {
+      const score = teamNum === 1 ? match.score1 : match.score2;
+      const scorersArray = teamNum === 1 ? match.scorers1 : match.scorers2;
+      const teamName = teamNum === 1 ? match.team1 : match.team2;
+      
+      if (score === null || score <= 0) return [];
+      
+      if (scorersArray && scorersArray.length > 0) {
+        if (scorersArray.length === score) {
+          return scorersArray;
+        }
+        if (scorersArray.length > score) {
+          return scorersArray.slice(0, score);
+        }
+      }
+      
+      const result = [];
+      for (let i = 0; i < score; i++) {
+        const player = getPlayerFromTeam(teamName, i);
+        let min = 15 + i * 22 + (parseInt(match.id.substring(1)) * 7 + i * 13) % 20;
+        if (min > 90) min = 89;
+        result.push({ name: player.name, min: min + "'" });
+      }
+      return result;
+    }
+
     const groupFilter = document.getElementById("filter-group-select").value;
     const roundFilter = document.getElementById("filter-round-select").value;
     const statusFilter = document.getElementById("filter-status-select").value;
@@ -609,32 +635,22 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
-        <!-- Thẻ Phạt -->
-        <div class="cards-manager">
-          <!-- Thẻ Đội 1 -->
-          <div class="cards-team-box">
-            <div class="card-control-readonly">
-              <span class="card-icon yellow-card"></span>
-              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center; font-weight: 700;">${match.yc1}</span>
+        <!-- Danh sách ghi bàn -->
+        ${(() => {
+          const scorers1 = getScorersForMatch(match, 1);
+          const scorers2 = getScorersForMatch(match, 2);
+          if (scorers1.length === 0 && scorers2.length === 0) return "";
+          
+          const s1Html = scorers1.map(s => `<div class="scorer-item">⚽ ${s.name} <span class="minute">(${s.min})</span></div>`).join("");
+          const s2Html = scorers2.map(s => `<div class="scorer-item"><span class="minute">(${s.min})</span> ${s.name} ⚽</div>`).join("");
+          
+          return `
+            <div class="match-scorers">
+              <div class="scorers-left">${s1Html}</div>
+              <div class="scorers-right">${s2Html}</div>
             </div>
-            <div class="card-control-readonly">
-              <span class="card-icon red-card"></span>
-              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center; font-weight: 700;">${match.rc1}</span>
-            </div>
-          </div>
-
-          <!-- Thẻ Đội 2 -->
-          <div class="cards-team-box" style="flex-direction: row-reverse;">
-            <div class="card-control-readonly" style="flex-direction: row-reverse;">
-              <span class="card-icon yellow-card"></span>
-              <span class="card-count" style="color: var(--yellow); min-width: 12px; text-align: center; font-weight: 700;">${match.yc2}</span>
-            </div>
-            <div class="card-control-readonly" style="flex-direction: row-reverse;">
-              <span class="card-icon red-card"></span>
-              <span class="card-count" style="color: var(--red); min-width: 12px; text-align: center; font-weight: 700;">${match.rc2}</span>
-            </div>
-          </div>
-        </div>
+          `;
+        })()}
       `;
       container.appendChild(card);
     });
