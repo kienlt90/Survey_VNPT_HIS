@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- PHẦN KHỞI TẠO (INIT) ---
   function init() {
        // 1. Tải dữ liệu từ localStorage hoặc dùng dữ liệu mặc định (Có kiểm tra phiên bản dữ liệu sạch)
-    const CURRENT_VERSION = "7.0";
+    const CURRENT_VERSION = "8.0";
     const savedVersion = localStorage.getItem("wc2026_version");
     const savedMatches = localStorage.getItem("wc2026_matches");
 
@@ -538,11 +538,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Sắp xếp các trận đấu theo ngày và giờ (Cũ đến mới)
     filteredMatches.sort((a, b) => {
       if (a.timestamp && b.timestamp) {
-        if (a.timestamp !== b.timestamp) {
-          return a.timestamp - b.timestamp;
-        }
+        return a.timestamp - b.timestamp;
       }
-      // Fallback nếu không có timestamp (ví dụ dữ liệu cũ) hoặc trùng ngày thì so sánh giờ
+      // Fallback nếu không có timestamp (ví dụ dữ liệu cũ)
       const [dayA, monthA, yearA] = a.date.split(/[\/\-\.]/);
       const [dayB, monthB, yearB] = b.date.split(/[\/\-\.]/);
       const dateA = new Date(`${yearA}-${monthA}-${dayA}T${a.time}:00`);

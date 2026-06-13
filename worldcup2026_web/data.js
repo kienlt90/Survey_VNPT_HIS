@@ -141,6 +141,10 @@ function generateMatchSchedule() {
       const groupDateShift = Math.floor(gIdx / 4); 
       const finalDate = new Date(baseDate.getTime() + (pair.dayOffset + groupDateShift) * 24 * 60 * 60 * 1000);
       
+      // Gán giờ và phút chính xác của trận đấu vào finalDate
+      const [hour, minute] = pair.time.split(":");
+      finalDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+
       const t1 = teams[pair.t1Idx];
       const t2 = teams[pair.t2Idx];
 
@@ -152,15 +156,41 @@ function generateMatchSchedule() {
       let rc2 = 0;
       let status = "Chưa đấu";
 
-      // Khởi tạo: Chỉ có trận khai mạc (Mexico vs Nam Phi) là đã đá, các trận khác chưa diễn ra
-      if (groupLetter === "A" && pair.round === 1 && t1.id === "MEX" && t2.id === "RSA") {
-        score1 = 2;
-        score2 = 0;
-        yc1 = 2;
-        rc1 = 1;
-        yc2 = 3;
-        rc2 = 2;
-        status = "Kết thúc";
+      // Khởi tạo kết quả cho 4 trận đấu đầu tiên đã diễn ra thực tế
+      if (pair.round === 1) {
+        if (groupLetter === "A" && t1.id === "MEX" && t2.id === "RSA") {
+          score1 = 2;
+          score2 = 0;
+          yc1 = 2;
+          rc1 = 1;
+          yc2 = 3;
+          rc2 = 2;
+          status = "Kết thúc";
+        } else if (groupLetter === "A" && t1.id === "KOR" && t2.id === "CZE") {
+          score1 = 2;
+          score2 = 1;
+          yc1 = 1;
+          rc1 = 0;
+          yc2 = 2;
+          rc2 = 0;
+          status = "Kết thúc";
+        } else if (groupLetter === "B" && t1.id === "CAN" && t2.id === "BIH") {
+          score1 = 1;
+          score2 = 1;
+          yc1 = 2;
+          rc1 = 0;
+          yc2 = 1;
+          rc2 = 0;
+          status = "Kết thúc";
+        } else if (groupLetter === "D" && t1.id === "USA" && t2.id === "PAR") {
+          score1 = 4;
+          score2 = 1;
+          yc1 = 1;
+          rc1 = 0;
+          yc2 = 3;
+          rc2 = 1;
+          status = "Kết thúc";
+        }
       }
 
       const day = String(finalDate.getDate()).padStart(2, '0');
