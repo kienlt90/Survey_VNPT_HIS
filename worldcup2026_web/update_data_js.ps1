@@ -1,4 +1,4 @@
-$dataJsPath = "c:\Users\PC\Downloads\Survey_VNPT_HIS\worldcup2026_web\data.js"
+$dataJsPath = "$PSScriptRoot\data.js"
 
 # 1. Read the existing data.js
 $lines = Get-Content -Path $dataJsPath -Encoding utf8
